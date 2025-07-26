@@ -529,8 +529,8 @@ reg [23:0] video_rgb_reg;
 reg hs_prev;
 reg vs_prev;
 
-assign video_rgb_clock = clk_core_6;
-assign video_rgb_clock_90 = clk_core_6_90deg;
+assign video_rgb_clock = clk_core_12;
+assign video_rgb_clock_90 = clk_core_12_90deg;
 
 assign video_de = video_de_reg;
 assign video_hs = video_hs_reg;
@@ -538,15 +538,15 @@ assign video_vs = video_vs_reg;
 assign video_rgb = video_rgb_reg;
 assign video_skip = 0;
 
-always @(posedge clk_core_6) begin
+always @(posedge clk_core_12) begin
     video_de_reg <= 0;
-	 video_rgb_reg <= 24'b0;
+    video_rgb_reg <= 24'b0;
 	
     if (~(vblank_core || hblank_core)) begin
-      video_de_reg <= 1;
-      video_rgb_reg[23:16] <= {2{sfrgb[11:8]}};
-		video_rgb_reg[15:8]  <= {2{sfrgb[7:4]}};
-		video_rgb_reg[7:0]   <= {2{sfrgb[3:0]}};
+        video_de_reg <= 1;
+        video_rgb_reg[23:16] <= {2{sfrgb[11:8]}};
+        video_rgb_reg[15:8]  <= {2{sfrgb[7:4]}};
+        video_rgb_reg[7:0]   <= {2{sfrgb[3:0]}};
     end
 
     video_hs_reg <= ~hs_prev && hs_core;
@@ -554,6 +554,7 @@ always @(posedge clk_core_6) begin
     hs_prev <= hs_core;
     vs_prev <= vs_core;
 end
+
 
 ///////////////////////////////////////////////
 // Audio
@@ -616,13 +617,15 @@ wire reset = ~reset_n | ioctl_download | manual_reset;
 wire [2:0] r, g;
 wire [1:0] b;
 
+wire clk_pix;
+
 NANO_STARFORC starforce
 (
     .reset ( reset ),
     .clk_48m ( clk_48 ),
     .clk_32m ( clk_32 ),
 
-    // .pxclk ( clk_pix ),
+    .pxclk ( clk_pix ),
 
     .HBlank ( hblank_core ),
     .VBlank ( vblank_core ),
@@ -651,8 +654,8 @@ NANO_STARFORC starforce
 // Clocks
 ///////////////////////////////////////////////
 
-wire    clk_core_6;
-wire    clk_core_6_90deg;
+wire    clk_core_12;
+wire    clk_core_12_90deg;
 wire    clk_48;
 wire    clk_32;
 wire    clk_sys; // 20MHz
@@ -663,8 +666,8 @@ mf_pllbase mp1 (
     .refclk         ( clk_74a ),
     .rst            ( 0 ),
 
-    .outclk_0       ( clk_core_6 ),
-    .outclk_1       ( clk_core_6_90deg ),
+    .outclk_0       ( clk_core_12 ),
+    .outclk_1       ( clk_core_12_90deg ),
     .outclk_2       ( clk_48 ),
     .outclk_3       ( clk_32 ),
     .outclk_4       ( clk_sys ),

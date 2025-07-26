@@ -37,6 +37,10 @@ Game reset can also be controlled from the interact menu from the Analogue Pocke
 
 ## Version History
 
+* v0.9.1
+- Pick up srolling fixes from upstream repo (improves scrolling)
+- Updated scaler settings to avoid flickering bars/missing rows.
+
 * v0.9.0
 - Initial Beta release
 

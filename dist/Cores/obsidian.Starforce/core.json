@@ -7,8 +7,8 @@
             "description": "Tehkan's Starforce, released in 1984",
             "author": "obsidian",
             "url": "https://github.com/obsidian-dot-dev/openFPGA-Starforce",
-            "version": "0.9.0",
-            "date_release": "2025-07-23"
+            "version": "0.9.1",
+            "date_release": "2025-07-25"
         },
         "framework": {
             "target_product": "Analogue Pocket",
