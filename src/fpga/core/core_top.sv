@@ -518,8 +518,11 @@ end
 
 wire hblank_core, vblank_core;
 wire hs_core, vs_core;
-
 wire [11:0] sfrgb;
+
+wire hblank_out, vblank_out;
+wire hs_out, vs_out;
+wire [11:0] sfrgb_out;
 
 reg video_de_reg;
 reg video_hs_reg;
@@ -529,8 +532,8 @@ reg [23:0] video_rgb_reg;
 reg hs_prev;
 reg vs_prev;
 
-assign video_rgb_clock = clk_core_12;
-assign video_rgb_clock_90 = clk_core_12_90deg;
+assign video_rgb_clock = clk_core_6;
+assign video_rgb_clock_90 = clk_core_6_90deg;
 
 assign video_de = video_de_reg;
 assign video_hs = video_hs_reg;
@@ -538,23 +541,37 @@ assign video_vs = video_vs_reg;
 assign video_rgb = video_rgb_reg;
 assign video_skip = 0;
 
-always @(posedge clk_core_12) begin
+always @(posedge clk_core_6) begin
     video_de_reg <= 0;
     video_rgb_reg <= 24'b0;
 	
-    if (~(vblank_core || hblank_core)) begin
+    if (~(vblank_out || hblank_out)) begin
         video_de_reg <= 1;
-        video_rgb_reg[23:16] <= {2{sfrgb[11:8]}};
-        video_rgb_reg[15:8]  <= {2{sfrgb[7:4]}};
-        video_rgb_reg[7:0]   <= {2{sfrgb[3:0]}};
+        video_rgb_reg[23:16] <= {2{sfrgb_out[11:8]}};
+        video_rgb_reg[15:8]  <= {2{sfrgb_out[7:4]}};
+        video_rgb_reg[7:0]   <= {2{sfrgb_out[3:0]}};
     end
 
-    video_hs_reg <= ~hs_prev && hs_core;
-    video_vs_reg <= ~vs_prev && vs_core;
-    hs_prev <= hs_core;
-    vs_prev <= vs_core;
+    video_hs_reg <= ~hs_prev && hs_out;
+    video_vs_reg <= ~vs_prev && vs_out;
+    hs_prev <= hs_out;
+    vs_prev <= vs_out;
 end
 
+line_buffer video_line (
+    .clk( clk_core_6 ),
+	.hsync( hs_core ),
+    .vsync( vs_core ),
+    .hblank( hblank_core ),
+    .vblank( vblank_core ),
+    .pixel( sfrgb ),
+
+    .hsync_out( hs_out ),
+    .vsync_out( vs_out ),
+    .hblank_out( hblank_out ),
+    .vblank_out( vblank_out ),
+    .pixel_out( sfrgb_out )    
+);
 
 ///////////////////////////////////////////////
 // Audio
@@ -654,8 +671,8 @@ NANO_STARFORC starforce
 // Clocks
 ///////////////////////////////////////////////
 
-wire    clk_core_12;
-wire    clk_core_12_90deg;
+wire    clk_core_6;
+wire    clk_core_6_90deg;
 wire    clk_48;
 wire    clk_32;
 wire    clk_sys; // 20MHz
@@ -666,8 +683,8 @@ mf_pllbase mp1 (
     .refclk         ( clk_74a ),
     .rst            ( 0 ),
 
-    .outclk_0       ( clk_core_12 ),
-    .outclk_1       ( clk_core_12_90deg ),
+    .outclk_0       ( clk_core_6 ),
+    .outclk_1       ( clk_core_6_90deg ),
     .outclk_2       ( clk_48 ),
     .outclk_3       ( clk_32 ),
     .outclk_4       ( clk_sys ),
